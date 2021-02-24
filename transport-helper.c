@@ -107,6 +107,7 @@ static void do_take_over(struct transport *transport)
 	data = (struct helper_data *)transport->data;
 	transport_take_over(transport, data->helper);
 	fclose(data->out);
+	free((void *)data->name);
 	free(data);
 }
 
@@ -382,6 +383,7 @@ static int release_helper(struct transport *transport)
 	struct helper_data *data = transport->data;
 	refspec_clear(&data->rs);
 	res = disconnect_helper(transport);
+	free((void *)data->name);
 	free(transport->data);
 	return res;
 }

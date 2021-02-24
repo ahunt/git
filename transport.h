@@ -277,6 +277,8 @@ int transport_connect(struct transport *transport, const char *name,
 		      const char *exec, int fd[2]);
 
 /* Transport methods defined outside transport.c */
+
+/* Note: takes ownership of name. */
 int transport_helper_init(struct transport *transport, const char *name);
 int bidirectional_transfer_loop(int input, int output);
 
