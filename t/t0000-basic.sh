@@ -1253,22 +1253,22 @@ P=$(test_oid root)
 
 test_expect_success 'git commit-tree records the correct tree in a commit' '
 	commit0=$(echo NO | git commit-tree $P) &&
-	tree=$(git show --pretty=raw $commit0 |
-		 sed -n -e "s/^tree //p" -e "/^author /q") &&
+	git show --pretty=raw $commit0  > tmp &&
+	tree=$(sed -n -e "s/^tree //p" -e "/^author /q" tmp) &&
 	test "z$tree" = "z$P"
 '
 
 test_expect_success 'git commit-tree records the correct parent in a commit' '
 	commit1=$(echo NO | git commit-tree $P -p $commit0) &&
-	parent=$(git show --pretty=raw $commit1 |
-		sed -n -e "s/^parent //p" -e "/^author /q") &&
+	git show --pretty=raw $commit1 > tmp &&
+	parent=$(sed -n -e "s/^parent //p" -e "/^author /q" tmp) &&
 	test "z$commit0" = "z$parent"
 '
 
 test_expect_success 'git commit-tree omits duplicated parent in a commit' '
 	commit2=$(echo NO | git commit-tree $P -p $commit0 -p $commit0) &&
-	     parent=$(git show --pretty=raw $commit2 |
-		sed -n -e "s/^parent //p" -e "/^author /q" |
+	git show --pretty=raw $commit2 > tmp &&
+	     parent=$(sed -n -e "s/^parent //p" -e "/^author /q" tmp |
 		sort -u) &&
 	test "z$commit0" = "z$parent" &&
 	numparent=$(git show --pretty=raw $commit2 |
@@ -1282,7 +1282,8 @@ test_expect_success 'update-index D/F conflict' '
 	mv path2 path0 &&
 	mv tmp path2 &&
 	git update-index --add --replace path2 path0/file2 &&
-	numpath0=$(git ls-files path0 | wc -l) &&
+	git ls-files path0 > tmp &&
+	numpath0=$(wc -l <tmp) &&
 	test $numpath0 = 1
 '
 
@@ -1296,13 +1297,14 @@ test_expect_success 'very long name in the index handled sanely' '
 
 	>path4 &&
 	git update-index --add path4 &&
+	git ls-files -s path4 > tmp &&
 	(
-		git ls-files -s path4 |
-		sed -e "s/	.*/	/" |
+		sed -e "s/	.*/	/" tmp |
 		tr -d "\012" &&
 		echo "$a"
 	) | git update-index --index-info &&
-	len=$(git ls-files "a*" | wc -c) &&
+	git ls-files "a*" > tmp &&
+	len=$(wc -c <tmp) &&
 	test $len = 4098
 '
 
